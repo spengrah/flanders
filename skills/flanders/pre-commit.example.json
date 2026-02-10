@@ -1,0 +1,15 @@
+{
+  "lint": {
+    "enabled": true,
+    "commands": [
+      { "name": "Shell syntax", "command": "bash -n skill/review-hook.sh && bash -n hooks/pre-commit" },
+      { "name": "Shellcheck", "command": "shellcheck skill/review-hook.sh hooks/pre-commit", "optional": true }
+    ]
+  },
+  "test": {
+    "enabled": true,
+    "commands": [
+      { "name": "JSON schema valid", "command": "jq . skill/review-schema.json > /dev/null" }
+    ]
+  }
+}

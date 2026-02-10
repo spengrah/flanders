@@ -8,7 +8,7 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
-CONFIG_FILE="$PROJECT_ROOT/.ai/pre-push.json"
+CONFIG_FILE="$PROJECT_ROOT/.ai/pre-commit.json"
 
 if [[ ! -f "$CONFIG_FILE" ]]; then
   exit 0

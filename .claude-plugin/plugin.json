@@ -1,0 +1,9 @@
+{
+  "name": "flanders",
+  "description": "Review-driven development with parallel agent teams and automated Codex code review",
+  "version": "0.1.0",
+  "author": {
+    "name": "Spencer Graham",
+    "url": "https://github.com/spengrah"
+  }
+}

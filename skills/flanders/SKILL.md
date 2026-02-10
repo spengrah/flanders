@@ -25,13 +25,15 @@ Orchestrate feature implementation through parallel agent teams with automated c
 - `CODEX_API_KEY` set (or logged in via `codex login`)
 - `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable set
 - `jq` available on PATH
-- `.ai/pre-push.json` configured with lint/test commands (for pre-commit gating)
+- `.ai/pre-commit.json` configured with lint/test commands (for pre-commit gating)
 
 ## Arguments
 
 - First argument: feature description (required)
 
 ## 1. Initialize
+
+Create state directories:
 
 ```bash
 mkdir -p .ai/log/plan .ai/log/review
@@ -43,6 +45,25 @@ Set baseline for review diff if not already set:
 if [ ! -f .ai/log/review/last-approved ]; then
   git rev-parse HEAD > .ai/log/review/last-approved
 fi
+```
+
+Install the pre-commit hook if not already present. Find the bundled hook in this skill's directory and copy it:
+
+```bash
+SKILL_DIR="$(find . -path '*/skills/flanders/pre-commit' -print -quit 2>/dev/null || find ~/.claude -path '*/skills/flanders/pre-commit' -print -quit 2>/dev/null)"
+if [ -n "$SKILL_DIR" ] && [ ! -f .git/hooks/pre-commit ]; then
+  cp "$SKILL_DIR" .git/hooks/pre-commit
+  chmod +x .git/hooks/pre-commit
+fi
+```
+
+Create `.ai/pre-commit.json` if it doesn't exist (copy the bundled example or create a minimal one):
+
+```json
+{
+  "lint": { "enabled": false, "commands": [] },
+  "test": { "enabled": false, "commands": [] }
+}
 ```
 
 Verify agent teams are enabled:

@@ -1,0 +1,62 @@
+#!/bin/bash
+# Pre-commit hook: runs lint and test commands from .ai/pre-push.json
+# Gates ALL commits (from lead agent and teammates) with lint + tests.
+# Blocks commit if any required check fails.
+#
+# Install: copy to .git/hooks/pre-commit (or symlink)
+
+set -euo pipefail
+
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+CONFIG_FILE="$PROJECT_ROOT/.ai/pre-push.json"
+
+if [[ ! -f "$CONFIG_FILE" ]]; then
+  exit 0
+fi
+
+# Check for jq
+if ! command -v jq &>/dev/null; then
+  echo "[pre-commit] jq not found, skipping checks" >&2
+  exit 0
+fi
+
+FAILED=0
+
+run_commands() {
+  local section="$1"
+  local enabled
+  enabled=$(jq -r ".$section.enabled // false" "$CONFIG_FILE")
+  [[ "$enabled" != "true" ]] && return 0
+
+  local count
+  count=$(jq ".$section.commands | length" "$CONFIG_FILE")
+  [[ "$count" -eq 0 ]] && return 0
+
+  for i in $(seq 0 $((count - 1))); do
+    local name cmd optional
+    name=$(jq -r ".$section.commands[$i].name" "$CONFIG_FILE")
+    cmd=$(jq -r ".$section.commands[$i].command" "$CONFIG_FILE")
+    optional=$(jq -r ".$section.commands[$i].optional // false" "$CONFIG_FILE")
+
+    echo "[pre-commit][$section] $name" >&2
+    if ! eval "$cmd" >/dev/null 2>&1; then
+      if [[ "$optional" == "true" ]]; then
+        echo "[pre-commit][$section] WARN $name (optional, continuing)" >&2
+      else
+        echo "[pre-commit][$section] FAIL $name" >&2
+        FAILED=1
+      fi
+    fi
+  done
+}
+
+run_commands "lint"
+run_commands "test"
+
+if [[ "$FAILED" -ne 0 ]]; then
+  echo "" >&2
+  echo "[pre-commit] Blocked: fix failures before committing." >&2
+  exit 1
+fi
+
+exit 0

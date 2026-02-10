@@ -105,4 +105,4 @@ Each wave is reviewed through two lenses (V1, hardcoded):
 
 ## Attribution
 
-Inspired by [Dennison Bertram's](https://x.com/DennisonBertram) parallel agent swarm and Ralph Loop pattern for iterative code review with rotating lenses.
+Inspired by [Dennison Bertram's](https://x.com/DennisonBertram) parallel agent swarm and [Ralph Loop](https://x.com/DennisonBertram/status/2021060514131190146) pattern for iterative code review with rotating lenses.
